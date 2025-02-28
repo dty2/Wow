@@ -108,12 +108,12 @@ bool EngineContext::initMode() {
     setMode(EngineContext::DYNAMIC);
     std::cout << "No static wallpaper to play, so play the dynamic wallpaper."
               << std::endl;
-  } else if (papers.second == 0 && papers.first != 0) {
+  } else if (papers.first != 0 && papers.second == 0) {
     setMode(EngineContext::STATIC);
     std::cout << "No dynamic wallpaper to play, so play the static wallpaper."
               << std::endl;
-  } else if (papers.first == 0 && papers.second != 0) {
-    setMode(EngineContext::DYNAMIC);
+  } else if (papers.first != 0 && papers.second != 0) {
+    setMode(EngineContext::STATIC);
     std::cout << "Default mode is static, so play the static wallpaper"
               << std::endl;
   } else {
@@ -143,7 +143,7 @@ EngineContext::EngineContext(WallpaperManager& manager) : manager(manager) {
   status = true;
   signal = false;
   pause = false;
-  mode = Mode::DYNAMIC;
+  mode = Mode::STATIC;
   playStaticIndex = 0;
   playDynamicIndex = 0;
   LOG(INFO) << "Static paper number:" << papers.first

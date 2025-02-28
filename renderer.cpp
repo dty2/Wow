@@ -1,8 +1,5 @@
 #include "renderer.h"
 
-#include <mutex>
-#include <vector>
-
 #include "paper.h"
 
 namespace Wow {
