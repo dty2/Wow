@@ -22,7 +22,6 @@ add_executable(Wow
     renderer.cpp
     dashboard.cpp
     paper.cpp
-    preprocess.cpp
     communication.cpp
 )
 

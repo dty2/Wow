@@ -1,8 +1,6 @@
 #ifndef PAPER_H
 #define PAPER_H
 
-#include <memory>
-
 #include "common.h"
 
 namespace Wow {
@@ -14,6 +12,7 @@ class Wallpaper {
     int scaledHeight;
   } size;
   std::string name;
+  std::string path;
   enum Type { STATIC, DYNAMIC } type;
 };
 
@@ -24,7 +23,8 @@ class StaticWallpaper : public Wallpaper {
 
 class DynamicWallpaper : public Wallpaper {
  public:
-  std::vector<std::vector<uint8_t>> bufferStream;
+  std::mutex mtx;
+  std::queue<std::vector<uint8_t>> buffer;
   int frameDelay;
 };
 

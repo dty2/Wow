@@ -16,17 +16,21 @@ void WallpaperManager::loadPaper(std::filesystem::directory_entry entry) {
   if (entry.is_regular_file() && entry.path().extension() == ".webp") {
     std::shared_ptr<StaticWallpaper> wallpaper =
         std::make_shared<StaticWallpaper>();
-    wallpaper->name = entry.path().string();
+    wallpaper->name = entry.path().stem().string();
+    wallpaper->path = entry.path().string();
     wallpaper->type = Wallpaper::STATIC;
     staticWallpapers.push_back(wallpaper);
-    LOG(INFO) << "Load paper: " << wallpaper->name << " successful.";
+    LOG(INFO) << "Load paper: " << wallpaper->name
+              << "type: " << wallpaper->type << " successful.";
   } else if (entry.is_regular_file() && entry.path().extension() == ".webm") {
     std::shared_ptr<DynamicWallpaper> wallpaper =
         std::make_shared<DynamicWallpaper>();
-    wallpaper->name = entry.path().string();
+    wallpaper->name = entry.path().stem().string();
+    wallpaper->path = entry.path().string();
     wallpaper->type = Wallpaper::DYNAMIC;
     dynamicWallpapers.push_back(wallpaper);
-    LOG(INFO) << "Load paper: " << wallpaper->name << " successful.";
+    LOG(INFO) << "Load paper: " << wallpaper->name
+              << "type: " << wallpaper->type << " successful.";
   } else {
     LOG(WARNING) << "Load paper: " << entry.path() << " error.";
     return;

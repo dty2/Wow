@@ -4,7 +4,6 @@
 #include "common.h"
 #include "communication.h"
 #include "paper.h"
-#include "preprocess.h"
 #include "renderer.h"
 
 namespace Wow {
@@ -12,7 +11,7 @@ namespace Wow {
 // Engine Running Context
 class EngineContext {
  private:
-  WallpaperManager& manager;
+  WallpaperManager &manager;
   std::shared_ptr<std::vector<std::shared_ptr<Wallpaper>>> playlist;
   int playStaticIndex;
   int playDynamicIndex;
@@ -24,7 +23,7 @@ class EngineContext {
   std::string cmd;
   enum Mode { STATIC, DYNAMIC } mode;
 
-  EngineContext(WallpaperManager& manager);
+  EngineContext(WallpaperManager &manager);
   void stop();
   void single();
   void next();
@@ -42,7 +41,10 @@ class Engine {
   Communication comm;
   WallpaperManager manager;
   Renderer renderer;
-  Preprocess preprocesser;
+
+  bool decodeStatic(std::shared_ptr<StaticWallpaper> wallpaper);
+  bool decodeDynamic(std::shared_ptr<DynamicWallpaper> wallpaper);
+  bool scale(Wallpaper &wallpaper);
 
   void handleCmd();
 

@@ -1,8 +1,7 @@
 #include "renderer.h"
 
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
+#include <mutex>
+#include <vector>
 
 #include "paper.h"
 
@@ -78,9 +77,7 @@ Renderer::~Renderer() {
 
 void Renderer::render(Wallpaper &wallpaper) {
   LOG(INFO) << "Wallpaper info: name:" << wallpaper.name
-            << " type:" << wallpaper.type
-            << " width:" << wallpaper.size.scaledWidth
-            << " height:" << wallpaper.size.scaledHeight;
+            << " type:" << wallpaper.type;
 
   if (wallpaper.type == Wallpaper::STATIC) {
     renderStatic(static_cast<StaticWallpaper &>(wallpaper));
@@ -121,6 +118,18 @@ void Renderer::renderStatic(StaticWallpaper &wallpaper) {
 }
 
 void Renderer::renderDynamic(DynamicWallpaper &wallpaper) {
+  enum { NOTEMPTY, EMPTY, FINISH } framestatus = EMPTY;
+
+  while (framestatus != NOTEMPTY) {
+    {
+      std::lock_guard<std::mutex> lock(wallpaper.mtx);
+      if (!wallpaper.buffer.empty()) {
+        framestatus = NOTEMPTY;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+
   SDL_Texture *texture = SDL_CreateTexture(
       renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING,
       wallpaper.size.scaledWidth, wallpaper.size.scaledHeight);
@@ -129,7 +138,38 @@ void Renderer::renderDynamic(DynamicWallpaper &wallpaper) {
     return;
   }
 
-  for (const auto &frame_buffer : wallpaper.bufferStream) {
+  LOG(INFO) << "Start render...";
+  while (true) {
+    std::vector<uint8_t> frame;
+    {
+      std::lock_guard<std::mutex> lock(wallpaper.mtx);
+      if (!wallpaper.buffer.empty()) {
+        if ([&](std::vector<uint8_t> vec1, std::vector<uint8_t> vec2) {
+              if (vec1.size() >= 5 && vec2.size() >= 5 &&
+                  std::equal(vec1.begin(), vec1.begin() + 5, vec2.begin())) {
+                return true;
+              } else {
+                return false;
+              }
+            }(wallpaper.buffer.front(), {5, 0, 0, 0, 0, 0, 0, 0})) {
+          wallpaper.buffer.pop();
+          framestatus = FINISH;
+        } else {
+          frame = wallpaper.buffer.front();
+          wallpaper.buffer.pop();
+          framestatus = NOTEMPTY;
+        }
+      } else {
+        framestatus = EMPTY;
+      }
+    }
+
+    if (framestatus == FINISH) {
+      break;
+    } else if (framestatus == EMPTY) {
+      continue;
+    }
+
     void *pixels;
     int pitch;
     if (SDL_LockTexture(texture, NULL, &pixels, &pitch) < 0) {
@@ -146,7 +186,7 @@ void Renderer::renderDynamic(DynamicWallpaper &wallpaper) {
 
     // Copy the pixels data
     uint8_t *dst = static_cast<uint8_t *>(pixels);
-    const uint8_t *src = frame_buffer.data();
+    const uint8_t *src = frame.data();
     for (int y = 0; y < wallpaper.size.scaledHeight; ++y) {
       memcpy(dst + y * pitch, src + y * expected_pitch, expected_pitch);
     }
@@ -159,9 +199,20 @@ void Renderer::renderDynamic(DynamicWallpaper &wallpaper) {
     SDL_Delay(static_cast<Uint32>(wallpaper.frameDelay));
 
     if (signal) {
+      std::lock_guard<std::mutex> lock(wallpaper.mtx);
+      while (!wallpaper.buffer.empty()) {
+        wallpaper.buffer.pop();
+      }
+      if (wallpaper.buffer.empty()) {
+        LOG(INFO) << "wallpaper " << wallpaper.name << " is empty";
+      }
+      google::FlushLogFiles(google::INFO);
+      google::FlushLogFiles(google::WARNING);
+      google::FlushLogFiles(google::ERROR);
       break;
     }
   }
+
   SDL_DestroyTexture(texture);
 }
 
