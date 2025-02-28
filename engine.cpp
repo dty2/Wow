@@ -16,11 +16,6 @@ std::shared_ptr<Wallpaper> EngineContext::getCurrent() {
   if (mode == STATIC) {
     std::shared_ptr<StaticWallpaper> wallpaper =
         std::static_pointer_cast<StaticWallpaper>((*playlist)[playStaticIndex]);
-    if (wallpaper->buffer.empty()) {
-      std::cout << "error";
-    } else {
-      std::cout << "error";
-    }
     return (*playlist)[playStaticIndex];
   } else {
     return (*playlist)[playDynamicIndex];
@@ -108,14 +103,51 @@ void EngineContext::setMode(Mode mode) {
   }
 }
 
-void EngineContext::changeMode() { setMode(mode == STATIC ? DYNAMIC : STATIC); }
+bool EngineContext::initMode() {
+  if (papers.first == 0 && papers.second != 0) {
+    setMode(EngineContext::DYNAMIC);
+    std::cout << "No static wallpaper to play, so play the dynamic wallpaper."
+              << std::endl;
+  } else if (papers.second == 0 && papers.first != 0) {
+    setMode(EngineContext::STATIC);
+    std::cout << "No dynamic wallpaper to play, so play the static wallpaper."
+              << std::endl;
+  } else if (papers.first == 0 && papers.second != 0) {
+    setMode(EngineContext::DYNAMIC);
+    std::cout << "Default mode is static, so play the static wallpaper"
+              << std::endl;
+  } else {
+    std::cout << "No wallpaper to play. \n"
+              << "Please place your wallpaper \"example.webp\" on "
+              << "$HOME/.config/Wow/static. \n"
+              << "Or place your wallpaper \"example.webm\" on "
+              << "$HOME/.config/Wow/dynamic. \n"
+              << "Then run \"./Wow -t\" again. \n";
+    return false;
+  }
+  return true;
+}
+
+void EngineContext::changeMode() {
+  if (papers.second != 0 && mode == STATIC) {
+    setMode(DYNAMIC);
+  } else if (papers.first != 0 && mode == DYNAMIC) {
+    setMode(STATIC);
+  } else {
+    std::cout << "Don't have Another mode wallpaper, change mode fault"
+              << std::endl;
+  }
+}
 
 EngineContext::EngineContext(WallpaperManager& manager) : manager(manager) {
   status = true;
   signal = false;
   pause = false;
+  mode = Mode::DYNAMIC;
   playStaticIndex = 0;
   playDynamicIndex = 0;
+  LOG(INFO) << "Static paper number:" << papers.first
+            << " Dynamic paper number:" << papers.second;
 }
 
 void Engine::handleCmd() {
@@ -135,26 +167,8 @@ Engine::Engine()
 
 void Engine::run() {
   // Load
-  std::pair<int, int> papers = manager.loadPapers();
-  LOG(INFO) << "Static paper number:" << papers.first
-            << " Dynamic paper number:" << papers.second;
-  if (papers.first == 0) {
-    LOG(WARNING)
-        << "No static wallpaper to play, so play the dynamic wallpaper.";
-    context.setMode(EngineContext::DYNAMIC);
-    std::cout << "No static wallpaper to play, so play the dynamic wallpaper."
-              << std::endl;
-  } else if (papers.second == 0) {
-    LOG(WARNING)
-        << "No dynamic wallpaper to play, so play the static wallpaper.";
-    context.setMode(EngineContext::STATIC);
-    std::cout << "No dynamic wallpaper to play, so play the static wallpaper."
-              << std::endl;
-  } else if (papers.first != 0 && papers.second != 0) {
-    context.setMode(EngineContext::STATIC);
-  } else {
-    LOG(WARNING) << "No wallpaper to play.";
-    std::cout << "No wallpaper to play." << std::endl;
+  context.papers = manager.loadPapers();
+  if (!context.initMode()) {
     return;
   }
 

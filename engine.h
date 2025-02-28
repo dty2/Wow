@@ -10,26 +10,31 @@ namespace Wow {
 
 // Engine Running Context
 class EngineContext {
+ public:
+  enum Mode { STATIC, DYNAMIC };
+
  private:
   WallpaperManager &manager;
   std::shared_ptr<std::vector<std::shared_ptr<Wallpaper>>> playlist;
   int playStaticIndex;
   int playDynamicIndex;
+  void setMode(Mode mode);
 
  public:
   bool status;
   bool signal;
   bool pause;
   std::string cmd;
-  enum Mode { STATIC, DYNAMIC } mode;
+  std::pair<int, int> papers;
+  Mode mode;
 
   EngineContext(WallpaperManager &manager);
   void stop();
   void single();
   void next();
   void previous();
-  void setMode(Mode mode);
-  void changeMode();  // change to another mode
+  bool initMode();
+  void changeMode();
   std::shared_ptr<Wallpaper> getCurrent();
   std::shared_ptr<Wallpaper> getNext();
   std::shared_ptr<Wallpaper> getPrevious();

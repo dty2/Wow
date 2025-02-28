@@ -38,9 +38,6 @@ void WallpaperManager::loadPaper(std::filesystem::directory_entry entry) {
 }
 
 WallpaperManager::WallpaperManager() {
-  if (!std::filesystem::exists(workDir)) {
-    std::filesystem::create_directory(workDir);
-  }
   if (!std::filesystem::exists(staticDir)) {
     std::filesystem::create_directory(staticDir);
   }

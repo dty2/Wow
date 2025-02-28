@@ -8,6 +8,10 @@ extern "C" {
 namespace Wow {
 
 Communication::Communication(Type type) : type(type) {
+  if (!std::filesystem::exists(workDir)) {
+    std::filesystem::create_directory(workDir);
+  }
+
   LOG(INFO) << "Open communication";
   if ((socket = ::socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
     LOG(ERROR) << "Get socket failed.";
