@@ -455,6 +455,16 @@ bool Engine::decodeDynamic(std::shared_ptr<DynamicWallpaper> wallpaper) {
               static_cast<int>(wallpaper->frameDelay * 90)));
         }
         if (context.signal) {
+          {
+            std::lock_guard<std::mutex> lock(wallpaper->mtx);
+            while (!wallpaper->buffer.empty()) {
+              wallpaper->buffer.pop();
+            }
+            if (wallpaper->buffer.empty()) {
+              LOG(INFO) << "wallpaper " << wallpaper->name << " is empty";
+            }
+          }
+
           goto cleanup;
         }
       }
@@ -468,15 +478,7 @@ bool Engine::decodeDynamic(std::shared_ptr<DynamicWallpaper> wallpaper) {
     wallpaper->buffer.push({5, 0, 0, 0, 0, 0, 0, 0});
   }
 
-cleanup: {
-  std::lock_guard<std::mutex> lock(wallpaper->mtx);
-  while (!wallpaper->buffer.empty()) {
-    wallpaper->buffer.pop();
-  }
-  if (wallpaper->buffer.empty()) {
-    LOG(INFO) << "wallpaper " << wallpaper->name << " is empty";
-  }
-}
+cleanup:
   // Free
   av_frame_free(&rgb_frame);
   sws_freeContext(sws_ctx);
