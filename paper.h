@@ -8,8 +8,8 @@ namespace Wow {
 class Wallpaper {
  public:
   struct Size {
-    int scaledWidth;
-    int scaledHeight;
+    int width;
+    int height;
   } size;
   std::string name;
   std::string path;

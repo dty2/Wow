@@ -18,6 +18,7 @@ class EngineContext {
   std::shared_ptr<std::vector<std::shared_ptr<Wallpaper>>> playlist;
   int playStaticIndex;
   int playDynamicIndex;
+  void initPlaylist();
   void setMode(Mode mode);
 
  public:
@@ -36,8 +37,6 @@ class EngineContext {
   bool initMode();
   void changeMode();
   std::shared_ptr<Wallpaper> getCurrent();
-  std::shared_ptr<Wallpaper> getNext();
-  std::shared_ptr<Wallpaper> getPrevious();
 };
 
 class Engine {
@@ -49,7 +48,6 @@ class Engine {
 
   bool decodeStatic(std::shared_ptr<StaticWallpaper> wallpaper);
   bool decodeDynamic(std::shared_ptr<DynamicWallpaper> wallpaper);
-  bool scale(Wallpaper &wallpaper);
 
   void handleCmd();
 

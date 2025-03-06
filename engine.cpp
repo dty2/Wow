@@ -22,40 +22,6 @@ std::shared_ptr<Wallpaper> EngineContext::getCurrent() {
   }
 }
 
-std::shared_ptr<Wallpaper> EngineContext::getNext() {
-  if (mode == STATIC) {
-    if (playStaticIndex < playlist->size() - 1) {
-      return (*playlist)[playStaticIndex + 1];
-    } else {
-      return (*playlist)[playlist->size() - 1];
-    }
-  } else if (mode == Mode::DYNAMIC) {
-    if (playStaticIndex < playlist->size() - 1) {
-      return (*playlist)[playDynamicIndex + 1];
-    } else {
-      return (*playlist)[playlist->size() - 1];
-    }
-  }
-  return getCurrent();
-}
-
-std::shared_ptr<Wallpaper> EngineContext::getPrevious() {
-  if (mode == STATIC) {
-    if (playStaticIndex < 0) {
-      return (*playlist)[playStaticIndex - 1];
-    } else {
-      return (*playlist)[0];
-    }
-  } else if (mode == Mode::DYNAMIC) {
-    if (playStaticIndex > 0) {
-      return (*playlist)[playDynamicIndex - 1];
-    } else {
-      return (*playlist)[0];
-    }
-  }
-  return getCurrent();
-}
-
 void EngineContext::stop() { status = false; }
 
 void EngineContext::single() { pause = true; }
@@ -118,9 +84,9 @@ bool EngineContext::initMode() {
               << std::endl;
   } else {
     std::cout << "No wallpaper to play. \n"
-              << "Please place your wallpaper \"example.webp\" on "
+              << "Please place your wallpaper \"example.png/jpg/webp/...\" on "
               << "$HOME/.config/Wow/static. \n"
-              << "Or place your wallpaper \"example.webm\" on "
+              << "Or place your wallpaper \"example.mp4/webm/...\" on "
               << "$HOME/.config/Wow/dynamic. \n"
               << "Then run \"./Wow -t\" again. \n";
     return false;
@@ -222,7 +188,7 @@ void Engine::run() {
 bool Engine::decodeStatic(std::shared_ptr<StaticWallpaper> wallpaper) {
   LOG(INFO) << "Decode wallpaper: " << wallpaper->name;
 
-  // Find the info of media
+  // Allocate and open the input file
   AVFormatContext* formatContext = avformat_alloc_context();
   if (avformat_open_input(&formatContext, wallpaper->path.c_str(), nullptr,
                           nullptr) != 0) {
@@ -233,103 +199,149 @@ bool Engine::decodeStatic(std::shared_ptr<StaticWallpaper> wallpaper) {
   if (avformat_find_stream_info(formatContext, nullptr) < 0) {
     LOG(ERROR) << "Could not find stream information for file: "
                << wallpaper->name;
+    avformat_close_input(&formatContext);
     return false;
   }
 
-  // Init decode
-  const AVCodec* codec = ::avcodec_find_decoder(AV_CODEC_ID_WEBP);
+  // Find the first video stream
+  int videoStreamIndex = -1;
+  AVCodecParameters* codecpar = nullptr;
+  for (unsigned int i = 0; i < formatContext->nb_streams; ++i) {
+    if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+      codecpar = formatContext->streams[i]->codecpar;
+      videoStreamIndex = i;
+      break;
+    }
+  }
+  if (codecpar == nullptr) {
+    LOG(ERROR) << "Could not find valid video stream in file: "
+               << wallpaper->name;
+    avformat_close_input(&formatContext);
+    return false;
+  }
+
+  // Select the decoder based on the video stream parameters
+  const AVCodec* codec = avcodec_find_decoder(codecpar->codec_id);
   if (codec == nullptr) {
-    LOG(ERROR) << "Could not find codec.";
+    LOG(ERROR) << "Could not find suitable codec.";
+    avformat_close_input(&formatContext);
     return false;
   }
 
   AVCodecContext* codecContext = avcodec_alloc_context3(codec);
   if (codecContext == nullptr) {
     LOG(ERROR) << "Could not allocate codec context.";
+    avformat_close_input(&formatContext);
     return false;
   }
 
-  if (::avcodec_parameters_to_context(
-          codecContext, formatContext->streams[0]->codecpar) < 0) {
+  if (avcodec_parameters_to_context(codecContext, codecpar) < 0) {
     LOG(ERROR) << "Could not copy codec parameters to context for file: "
                << wallpaper->name;
+    avcodec_free_context(&codecContext);
+    avformat_close_input(&formatContext);
     return false;
   }
 
   if (avcodec_open2(codecContext, codec, nullptr) < 0) {
     LOG(ERROR) << "Could not open codec.";
+    avcodec_free_context(&codecContext);
+    avformat_close_input(&formatContext);
     return false;
   }
 
+  // Allocate packet and frame
   AVPacket* packet = av_packet_alloc();
   AVFrame* frame = av_frame_alloc();
-  int response = 0;
-
-  while (av_read_frame(formatContext, packet) >= 0) {
-    response = avcodec_send_packet(codecContext, packet);
-    if (response < 0) {
-      LOG(ERROR) << "Error while sending packet to decoder.";
-      break;
-    }
-
-    while (response >= 0) {
-      response = avcodec_receive_frame(codecContext, frame);
-      if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
-        break;
-      } else if (response < 0) {
-        LOG(ERROR) << "Error while receiving frame from decoder.";
-        return false;
-      }
-
-      struct SwsContext* sws_ctx = sws_getContext(
-          frame->width, frame->height, (AVPixelFormat)frame->format,
-          frame->width, frame->height, AV_PIX_FMT_RGB24, SWS_SINC, NULL, NULL,
-          NULL);
-
-      if (!sws_ctx) {
-        LOG(ERROR) << "Could not initialize the conversion context.";
-        return false;
-      }
-
-      AVFrame* rgb_frame = av_frame_alloc();
-      rgb_frame->format = AV_PIX_FMT_RGB24;
-      rgb_frame->width = frame->width;
-      rgb_frame->height = frame->height;
-
-      if (av_frame_get_buffer(rgb_frame, 0) < 0) {
-        LOG(ERROR) << "Could not allocate buffer for converted frame.";
-        return false;
-      }
-
-      sws_scale(sws_ctx, frame->data, frame->linesize, 0, frame->height,
-                rgb_frame->data, rgb_frame->linesize);
-
-      wallpaper->size.scaledWidth = rgb_frame->width;
-      wallpaper->size.scaledHeight = rgb_frame->height;
-
-      int num_bytes = av_image_get_buffer_size(
-          AV_PIX_FMT_RGB24, rgb_frame->width, rgb_frame->height, 1);
-      wallpaper->buffer.resize(num_bytes);
-
-      av_image_copy_to_buffer(wallpaper->buffer.data(), num_bytes,
-                              rgb_frame->data, rgb_frame->linesize,
-                              AV_PIX_FMT_RGB24, rgb_frame->width,
-                              rgb_frame->height, 1);
-
-      av_frame_free(&rgb_frame);
-      sws_freeContext(sws_ctx);
-
-      break;
-    }
-
-    av_packet_unref(packet);
+  if (!packet || !frame) {
+    LOG(ERROR) << "Could not allocate packet or frame.";
+    if (packet) av_packet_free(&packet);
+    if (frame) av_frame_free(&frame);
+    avcodec_free_context(&codecContext);
+    avformat_close_input(&formatContext);
+    return false;
   }
 
-end:
+  // Read frame data (only decode the first frame)
+  int response = 0;
+  bool gotFrame = false;
+  while (av_read_frame(formatContext, packet) >= 0 && !gotFrame) {
+    if (packet->stream_index == videoStreamIndex) {
+      response = avcodec_send_packet(codecContext, packet);
+      if (response < 0) {
+        LOG(ERROR) << "Error while sending packet to decoder.";
+        break;
+      }
+      response = avcodec_receive_frame(codecContext, frame);
+      if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
+        // No frame data is obtained immediately, continue processing
+      } else if (response < 0) {
+        LOG(ERROR) << "Error while receiving frame from decoder.";
+        break;
+      } else {
+        gotFrame = true;
+      }
+    }
+    av_packet_unref(packet);
+  }
+  if (!gotFrame) {
+    LOG(ERROR) << "No frame decoded from file: " << wallpaper->name;
+    av_packet_free(&packet);
+    av_frame_free(&frame);
+    avcodec_free_context(&codecContext);
+    avformat_close_input(&formatContext);
+    return false;
+  }
+
+  // Convert the decoded frame to RGB24 format using sws_scale
+  struct SwsContext* sws_ctx = sws_getContext(
+      frame->width, frame->height, (AVPixelFormat)frame->format, frame->width,
+      frame->height, AV_PIX_FMT_RGB24, SWS_BILINEAR, nullptr, nullptr, nullptr);
+  if (!sws_ctx) {
+    LOG(ERROR) << "Could not initialize the conversion context.";
+    av_packet_free(&packet);
+    av_frame_free(&frame);
+    avcodec_free_context(&codecContext);
+    avformat_close_input(&formatContext);
+    return false;
+  }
+
+  AVFrame* rgb_frame = av_frame_alloc();
+  rgb_frame->format = AV_PIX_FMT_RGB24;
+  rgb_frame->width = frame->width;
+  rgb_frame->height = frame->height;
+  if (av_frame_get_buffer(rgb_frame, 0) < 0) {
+    LOG(ERROR) << "Could not allocate buffer for converted frame.";
+    sws_freeContext(sws_ctx);
+    av_frame_free(&rgb_frame);
+    av_packet_free(&packet);
+    av_frame_free(&frame);
+    avcodec_free_context(&codecContext);
+    avformat_close_input(&formatContext);
+    return false;
+  }
+
+  sws_scale(sws_ctx, frame->data, frame->linesize, 0, frame->height,
+            rgb_frame->data, rgb_frame->linesize);
+
+  // Save the converted image data to wallpaper
+  wallpaper->size.width = rgb_frame->width;
+  wallpaper->size.height = rgb_frame->height;
+  int num_bytes = av_image_get_buffer_size(AV_PIX_FMT_RGB24, rgb_frame->width,
+                                           rgb_frame->height, 1);
+  wallpaper->buffer.resize(num_bytes);
+  av_image_copy_to_buffer(wallpaper->buffer.data(), num_bytes, rgb_frame->data,
+                          rgb_frame->linesize, AV_PIX_FMT_RGB24,
+                          rgb_frame->width, rgb_frame->height, 1);
+
+  // free
+  sws_freeContext(sws_ctx);
+  av_frame_free(&rgb_frame);
   av_packet_free(&packet);
   av_frame_free(&frame);
   avcodec_free_context(&codecContext);
   avformat_close_input(&formatContext);
+
   return true;
 }
 
@@ -364,14 +376,6 @@ bool Engine::decodeDynamic(std::shared_ptr<DynamicWallpaper> wallpaper) {
     return false;
   }
 
-  // Get the frame rate
-  AVStream* videoStream = formatContext->streams[videoStreamIndex];
-  AVRational frame_rate =
-      av_guess_frame_rate(formatContext, videoStream, nullptr);
-  // Calculate the delay time each frame
-  double frame_delay = av_q2d(av_inv_q(frame_rate));
-  wallpaper->frameDelay = frame_delay * 1000;
-
   // Init the decoder
   AVCodecParameters* codecpar =
       formatContext->streams[videoStreamIndex]->codecpar;
@@ -402,6 +406,14 @@ bool Engine::decodeDynamic(std::shared_ptr<DynamicWallpaper> wallpaper) {
     avformat_close_input(&formatContext);
     return false;
   }
+
+  // Get the frame rate
+  AVStream* videoStream = formatContext->streams[videoStreamIndex];
+  AVRational frame_rate =
+      av_guess_frame_rate(formatContext, videoStream, nullptr);
+  // Calculate the delay time each frame
+  double frame_delay = av_q2d(av_inv_q(frame_rate));
+  wallpaper->frameDelay = frame_delay * 1000;
 
   // Alloc the frame and packet
   AVFrame* frame = av_frame_alloc();
@@ -441,8 +453,8 @@ bool Engine::decodeDynamic(std::shared_ptr<DynamicWallpaper> wallpaper) {
           }
 
           // Save the video size info
-          wallpaper->size.scaledWidth = frame->width;
-          wallpaper->size.scaledHeight = frame->height;
+          wallpaper->size.width = frame->width;
+          wallpaper->size.height = frame->height;
         }
 
         // Change the format to rgb24 from original format
@@ -502,11 +514,6 @@ cleanup:
   avformat_close_input(&formatContext);
 
   return true;
-}
-
-bool Engine::scale(Wallpaper& wallpaper) {
-  // TODO:
-  return false;
 }
 
 }  // namespace Wow
