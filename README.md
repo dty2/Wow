@@ -2,7 +2,7 @@
 
 ## Show
 
-<video src="show.mp4" controls autoplay loop muted width="600"></video>
+![Show](./show.gif)
 
 ## Description
 
