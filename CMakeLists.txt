@@ -21,12 +21,14 @@ if(WAYLAND)
     pkg_check_modules(GLES2 REQUIRED glesv2)
     pkg_check_modules(WAYLAND_EGL REQUIRED wayland-egl)
     add_definitions(-DWAYLAND)
+    set(PROTOCOLS generate/wlr-layer-shell-unstable-v1-client-protocol.c generate/xdg-shell-protocol.c)
 
 else()
 
     option(X11 "Build with X11 support" ON)
     find_package(X11 REQUIRED)
     add_definitions(-DX11)
+    set(PROTOCOLS )
 
 endif()
 
@@ -37,13 +39,11 @@ add_executable(Wow
     dashboard.cpp
     paper.cpp
     communication.cpp
-    generate/wlr-layer-shell-unstable-v1-client-protocol.c
-    generate/xdg-shell-protocol.c
+    ${PROTOCOLS}
 )
 
 if(WAYLAND)
     include_directories(
-        # ${Wayland_INCLUDE_DIRS}
         ${CMAKE_CURRENT_SOURCE_DIR}/generate
         ${WAYLAND_CLIENT_INCLUDE_DIRS}
         ${WLR_PROTOCOLS_INCLUDE_DIRS}
@@ -51,7 +51,6 @@ if(WAYLAND)
         ${GLES2_INCLUDE_DIRS}
     )
     target_link_libraries(Wow PUBLIC
-        # ${Wayland_LIBRARIES}
         ${WAYLAND_CLIENT_LIBRARIES}
         ${WAYLAND_CLIENT_LDFLAGS_OTHER}
         ${WLR_PROTOCOLS_LIBRARIES}
