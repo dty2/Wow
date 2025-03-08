@@ -2,6 +2,8 @@
 
 ## Show
 
+<video src="show.mp4" controls autoplay loop muted width="600"></video>
+
 ## Description
 
 Wow is a wallpaper player Demo(Support X11 and Wayland). It can play Static and Dynamic wallpaper.
