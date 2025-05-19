@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(glog REQUIRED)
+find_package(nlohmann_json REQUIRED)
 find_package(PkgConfig)
 pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(FFMPEG REQUIRED libavcodec libavformat libavutil libswscale)
@@ -28,17 +29,19 @@ else()
     option(X11 "Build with X11 support" ON)
     find_package(X11 REQUIRED)
     add_definitions(-DX11)
-    set(PROTOCOLS )
+    set(PROTOCOLS)
 
 endif()
 
 add_executable(Wow
     main.cpp
-    engine.cpp
-    renderer.cpp
-    dashboard.cpp
-    paper.cpp
-    communication.cpp
+    Engine.cpp
+    Renderer.cpp
+    Decoder.cpp
+    Dashboard.cpp
+    WallPaper.cpp
+    Manager.cpp
+    Communication.cpp
     ${PROTOCOLS}
 )
 
