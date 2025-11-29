@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "error.h"
+#include "log.hpp"
 
 struct VertexBufferElement {
   unsigned int count;
@@ -35,8 +36,12 @@ class VertexBufferLayout {
   VertexBufferLayout() : stride(0) {};
 
   template <typename T>
-  void push(unsigned int count) {
+  inline void push(unsigned int count) {
     assert(false);
+
+    // log is needed to show
+    // because assert will be remove when optimization
+    LOG(ERROR) << "Can't run this!";
   }
 
   inline const std::vector<VertexBufferElement> getElements() const {
@@ -45,3 +50,9 @@ class VertexBufferLayout {
 
   inline unsigned int getStride() const { return stride; }
 };
+
+template <>
+inline void VertexBufferLayout::push<float>(unsigned int count) {
+  elements.push_back({count, GL_FLOAT, GL_FALSE});
+  stride += count * VertexBufferElement::getSizeOfType(GL_FLOAT);
+}

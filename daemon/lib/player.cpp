@@ -3,7 +3,6 @@
 #include <pthread.h>
 
 #include <chrono>
-#include <iostream>
 #include <memory>
 #include <mutex>
 #include <string>

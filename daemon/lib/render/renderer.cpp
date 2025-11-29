@@ -1,5 +1,7 @@
 #include "render/renderer.h"
 
+#include <GLES3/gl32.h>
+
 #include <memory>
 #include <thread>
 
@@ -34,7 +36,6 @@ std::string Renderer::fragmentShader = R"(
     void main() {
         fragColor = texture(uTexture, vTex);
     }
-
 )";
 
 bool Renderer::initRenderer() {
@@ -119,7 +120,6 @@ void Renderer::render(bool& decodeFinished) {
 
     texture.bind();
     texture.update(buffer);
-
     GLCall(glDrawElements(GL_TRIANGLES, (*ib).getCount(), GL_UNSIGNED_INT,
                           nullptr));
     changeSurface();

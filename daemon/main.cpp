@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
       if (exists(std::string(home) + "/.config/")) {
         configdir = std::string(home) + "/.config/wow";
       } else {
-        configdir = std::string(home) + "/.wow/";
+        configdir = std::string(home) + "/.wow";
       }
     }
   } else {

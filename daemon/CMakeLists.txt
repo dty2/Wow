@@ -26,7 +26,6 @@ add_executable(
     lib/render/IndexBuffer.cpp
     lib/render/VertexArray.cpp
     lib/render/VertexBuffer.cpp
-    lib/render/VertexBufferLayout.cpp
     lib/render/error.cpp
     lib/render/renderer.cpp
     lib/render/Texture.cpp
