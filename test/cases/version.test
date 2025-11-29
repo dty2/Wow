@@ -1,0 +1,16 @@
+# RUN:CLI
+${BIN}/wow-daemon -v --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# CHECK:REGEX
+[0-9]+\.[0-9]+\.[0-9]+
+# RUN:CLI
+${BIN}/wow-cli -v --work-dir ${WORK_DIR} --file-log FILE
+# CHECK:REGEX
+[0-9]+\.[0-9]+\.[0-9]+
+# RUN:CLI
+${BIN}/wow-daemon --version --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# CHECK:REGEX
+[0-9]+\.[0-9]+\.[0-9]+
+# RUN:CLI
+${BIN}/wow-cli --version --work-dir ${WORK_DIR} --file-log FILE
+# CHECK:REGEX
+[0-9]+\.[0-9]+\.[0-9]+

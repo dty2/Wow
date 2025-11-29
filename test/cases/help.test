@@ -1,0 +1,50 @@
+# RUN:CLI
+${BIN}/wow-daemon -h --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# CHECK:TEXT
+Options:
+          --config-dir    Set config directory
+          --work-dir      Set work directory
+          --file-log      Set log type(FILE/STDIO)
+    -v    --version       get version
+    -h    --help          get help
+# RUN:CLI
+${BIN}/wow-daemon --help --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# CHECK:TEXT
+Options:
+          --config-dir    Set config directory
+          --work-dir      Set work directory
+          --file-log      Set log type(FILE/STDIO)
+    -v    --version       get version
+    -h    --help          get help
+# RUN:CLI
+${BIN}/wow-cli -h --work-dir ${WORK_DIR} --file-log FILE
+# CHECK:TEXT
+Options:
+          --work-dir    Set work directory
+    -l    --list        Play [L]ist
+    -t    --test        [T]est wallpaper
+    -q    --quit        [Q]uit wow
+    -m    --manual      [M]anual play
+    -h    --help        [H]elp
+    -r    --refresh     [R]efresh
+    -p    --prev        [P]revious wallpaper
+          --file-log    Set log type(FILE/STDIO)
+    -v    --version     [V]ersion
+    -i    --info        Show all [I]nfo
+    -n    --next        [N]ext wallpaper
+# RUN:CLI
+${BIN}/wow-cli --help --work-dir ${WORK_DIR} --file-log FILE
+# CHECK:TEXT
+Options:
+          --work-dir    Set work directory
+    -l    --list        Play [L]ist
+    -t    --test        [T]est wallpaper
+    -q    --quit        [Q]uit wow
+    -m    --manual      [M]anual play
+    -h    --help        [H]elp
+    -r    --refresh     [R]efresh
+    -p    --prev        [P]revious wallpaper
+          --file-log    Set log type(FILE/STDIO)
+    -v    --version     [V]ersion
+    -i    --info        Show all [I]nfo
+    -n    --next        [N]ext wallpaper

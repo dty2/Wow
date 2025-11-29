@@ -1,0 +1,10 @@
+# RUN:DAEMON
+${BIN}/wow-daemon --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# RUN:CLI
+${BIN}/wow-cli -p --work-dir ${WORK_DIR} --file-log FILE
+# RUN:CLI
+${BIN}/wow-cli -i --work-dir ${WORK_DIR} --file-log FILE
+# CHECK:REGEX
+[\s\S]*Current WallPaper: girl_4[\s\S]*
+# RUN:CLI
+${BIN}/wow-cli -q --work-dir ${WORK_DIR} --file-log FILE

@@ -1,0 +1,11 @@
+startlist = "girl"
+
+[girl]
+dir = "./girl"
+time = 5
+order = ["girl_1.webp", "girl_2.webp", "girl_3.webm", "girl_4.webm"]
+
+[scenery]
+dir = "./scenery"
+time = 1
+order = ["scenery_1.webp", "scenery_2.webp"]

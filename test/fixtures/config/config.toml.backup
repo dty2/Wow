@@ -1,0 +1,6 @@
+startlist = "scenery"
+
+[scenery]
+dir = "./scenery"
+time = 1
+order = ["scenery_1.webp", "scenery_2.webp"]

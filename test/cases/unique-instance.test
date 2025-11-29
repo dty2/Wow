@@ -1,0 +1,8 @@
+# RUN:DAEMON
+${BIN}/wow-daemon --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# RUN:CLI
+${BIN}/wow-daemon --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# CHECK:TEXT
+wow-daemon is runing now, can't run again.
+# RUN:CLI
+${BIN}/wow-cli -q --work-dir ${WORK_DIR} --file-log FILE

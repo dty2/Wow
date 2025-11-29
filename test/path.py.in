@@ -1,0 +1,8 @@
+# Generate by CMakeLists.txt
+# Do not edit !!!
+VARS = {
+    "SRC": "@TEST_SRC_DIR@",
+    "BIN": "@TEST_BIN_DIR@",
+    "WORK_DIR": "@TEST_WORK_DIR@",
+    "CONFIG_DIR": "@TEST_CONFIG_DIR@",
+}

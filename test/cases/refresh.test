@@ -1,0 +1,20 @@
+# RUN:DAEMON
+${BIN}/wow-daemon --work-dir ${WORK_DIR} --config-dir ${CONFIG_DIR} --file-log FILE
+# RUN:SHELL
+${SRC}/modify.sh
+# RUN:CLI
+${BIN}/wow-cli -r --work-dir ${WORK_DIR} --file-log FILE
+# RUN:CLI
+${BIN}/wow-cli -i --work-dir ${WORK_DIR} --file-log FILE
+# CHECK:REGEX
+Info:\nCurrent List: scenery\nCurrent WallPaper: scenery_1\nCurrent Mode: auto[\s\S]*
+# RUN:SHELL
+${SRC}/modify.sh
+# RUN:CLI
+${BIN}/wow-cli -r --work-dir ${WORK_DIR} --file-log FILE
+# RUN:CLI
+${BIN}/wow-cli -i --work-dir ${WORK_DIR} --file-log FILE
+# CHECK:REGEX
+Info:\nCurrent List: scenery\nCurrent WallPaper: scenery_1\nCurrent Mode: auto[\s\S]*
+# RUN:CLI
+${BIN}/wow-cli -q --work-dir ${WORK_DIR} --file-log FILE
