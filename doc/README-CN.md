@@ -99,3 +99,10 @@ wow-cli -l [list]            # [L]ist     播放指定的列表
 
 设计: 详见 [设计文档](../doc/设计.md)  
 测试: 详见 [测试文档](../doc/测试.md)
+
+## 许可
+
+本项目采用双重许可：
+
+- 开源使用: [GPLv3](../LICENSE)
+- 商业使用: [COMMERCIAL_LICENSE](../COMMERCIAL_LICENSE.md)
