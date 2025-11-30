@@ -15,3 +15,5 @@ target_include_directories(
     basic
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+install(TARGETS basic LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})

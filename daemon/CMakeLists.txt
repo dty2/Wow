@@ -61,3 +61,5 @@ set_target_properties(
     wow-daemon
     PROPERTIES BUILD_RPATH "${CMAKE_BINARY_DIR}/lib"
 )
+
+install(TARGETS wow-daemon RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

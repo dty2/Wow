@@ -4,8 +4,6 @@
 
 ## Showcase
 
-[Dynamic](/show/dynamic.gif)
-
 [Static](/show/static.png)
 
 ## Introduction
@@ -18,13 +16,13 @@ It supports images as static wallpapers and videos as dynamic wallpapers.
 
 [Release](https://github.com/dty2/Wow/releases)
 
-For building from source, see [Build Documentation](/doc/构建.md).
+For building from source, see [Build Documentation](/doc/build_and_install.md).
 
 ## Quick Start
 
 1. Add a wallpaper list, see [Wallpaper List Setup](#wallpaper-list-setup)
 2. Add a configuration file (`config.toml`), see [Configuration File](#configuration-file)
-3. ~~Genshin Impact~~ Launch! Command: `wow-daemon`
+3. Launch! Command: `wow-daemon`
 4. Control playback, see [Control Commands](#control-commands)
 
 ### Wallpaper List Setup

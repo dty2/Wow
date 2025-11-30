@@ -8,3 +8,5 @@ target_include_directories(
 target_link_libraries(wow-cli PUBLIC basic)
 
 set_target_properties(wow-cli PROPERTIES BUILD_RPATH "${CMAKE_BINARY_DIR}/lib")
+
+install(TARGETS wow-cli RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

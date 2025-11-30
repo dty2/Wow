@@ -16,7 +16,7 @@ Wow 是一个运行在 Wayland 环境下的壁纸播放器
 
 [发布版本](https://github.com/dty2/Wow/releases)
 
-如果需要自行构建，请参阅 [构建文档](/doc/构建.md)。
+如果需要自行构建，请参阅 [构建文档](/doc/构建与安装.md)。
 
 ## 快速开始
 

@@ -32,3 +32,8 @@ if(ENABLE_TEST)
     enable_testing()
     add_subdirectory(test)
 endif()
+
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/example/config/
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/wow
+)
