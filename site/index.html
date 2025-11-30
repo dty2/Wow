@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Wow - WallPaper Player</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="logo">Wow!</div>
+      <div class="lang-switcher">
+        <select id="lang-selector">
+          <option value="en">English</option>
+          <option value="zh">中文</option>
+        </select>
+      </div>
+    </nav>
+    <main>
+      <section class="center-video">
+        <video
+          src="assets/wallpapers/dynamic-demo.mp4"
+          autoplay
+          muted
+          loop
+          controls
+          poster="assets/wallpapers/static-demo.jpg"
+          id="main-video"
+        ></video>
+      </section>
+      <section class="action-buttons">
+        <button
+          class="big-btn"
+          id="quick-start-btn"
+          data-i18n="btn_quick_start"
+        ></button>
+        <a
+          class="big-btn"
+          id="doc-btn"
+          href="https://github.com/dty2/Wow/tree/main/doc"
+          target="_blank"
+          data-i18n="btn_doc"
+        ></a>
+        <button
+          class="big-btn buy-btn"
+          id="support-btn"
+          data-i18n="btn_support"
+        ></button>
+      </section>
+    </main>
+
+    <!-- quick start -->
+    <div class="modal" id="quick-start-modal">
+      <div class="modal-content">
+        <span class="modal-close" id="quick-start-close">&times;</span>
+        <h2 data-i18n="quick_start_title"></h2>
+        <div id="quick-start-content" data-i18n="quick_start_content"></div>
+      </div>
+    </div>
+
+    <!-- support pop-up -->
+    <div class="modal" id="support-modal">
+      <div class="modal-content">
+        <span class="modal-close" id="support-close">&times;</span>
+        <h2 data-i18n="support_title"></h2>
+        <p data-i18n="support_desc"></p>
+        <div class="support-options">
+          <button
+            class="support-pay-btn"
+            data-action="whip"
+            data-i18n="support_whip"
+          ></button>
+          <button
+            class="support-pay-btn"
+            data-action="coffee"
+            data-i18n="support_coffee"
+          ></button>
+        </div>
+        <div id="pay-info" class="pay-info"></div>
+      </div>
+    </div>
+    <footer>
+      <p>
+        &copy; 2025 Wow,
+        <a href="https://github.com/dty2/Wow" target="_blank">GitHub</a>
+      </p>
+    </footer>
+    <script src="i18n.js"></script>
+    <script src="main.js"></script>
+  </body>
+</html>
