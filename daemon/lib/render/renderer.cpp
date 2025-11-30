@@ -141,6 +141,8 @@ void Renderer::render(bool& decodeFinished) {
     }
 
     if (signal) {
+      // To prevent renderer quit first but decoder still wait in push
+      frameBuffer.notify();
       break;
     }
   }

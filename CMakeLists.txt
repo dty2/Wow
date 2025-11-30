@@ -26,7 +26,7 @@ add_subdirectory(basic)
 add_subdirectory(daemon)
 add_subdirectory(client)
 
-option(ENABLE_TEST "Enable building regression tests" ON)
+option(ENABLE_TEST "Enable building regression tests" OFF)
 
 if(ENABLE_TEST)
     enable_testing()

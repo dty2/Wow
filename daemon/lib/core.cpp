@@ -35,13 +35,8 @@ void Core::handleAction(const Json& cmd) {
     }
   }
 
-  if (action == "refresh") {
-    resourcemanager->loadResource();
-  }
-
-  if (action == "quit") {
-    active = false;
-  }
+  if (action == "refresh") resourcemanager->loadResource();
+  if (action == "quit") active = false;
 
   tasklist.push(action, target);
 
@@ -59,18 +54,14 @@ bool Core::init(std::string workdir, std::string configdir) {
 
   // load resource
   resourcemanager = std::make_unique<ResourceManager>(configdir);
-  if (!resourcemanager->loadResource()) {
-    return false;
-  }
+  if (!resourcemanager->loadResource()) return false;
 
   auto list = resourcemanager->getStartList();
   auto& lists = resourcemanager->getWallPaperLists();
 
   player = std::make_unique<Player>(tasklist, lists);
 
-  if (!player->init(list)) {
-    return false;
-  }
+  if (!player->init(list)) return false;
 
   return true;
 }
@@ -82,13 +73,8 @@ void Core::work() {
     while (active) {
       Json cmd;
 
-      if (!server->receive(cmd)) {
-        continue;
-      }
-
-      if (cmd.is_null()) {
-        continue;
-      }
+      if (!server->receive(cmd)) continue;
+      if (cmd.is_null()) continue;
 
       handleAction(cmd);
     }

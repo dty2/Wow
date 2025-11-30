@@ -1,5 +1,11 @@
 # Test
 
+before build, please set "-DENABLE_TEST=ON", default is "OFF"
+
+```bash
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TEST=ON
+```
+
 ```txt
 .
 ├── cases  # <- put ".test" file
@@ -25,11 +31,9 @@
 > after adding a new ".test" file, run `cmake --build build` please
 
 ```bash
-cd build
-
 # run all test
-ctest
+ctest --test-dir build --output-on-failure
 
 # run single test
-python3 ./test/runtest.py ../test/cases/[测试名].test
+python3 test/runtest.py test/cases/[test name].test
 ```

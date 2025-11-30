@@ -22,11 +22,12 @@ bool TaskList::empty() {
 void TaskList::push(std::string action, std::string target) {
   std::lock_guard<std::mutex> lock(mtx);
   cmdQueue.push({action, target});
+  taskCondition.notify_all();
 }
 
 Task TaskList::get() {
   std::unique_lock<std::mutex> lock(mtx);
-  cv.wait(lock, [this] { return !cmdQueue.empty(); });
+  taskCondition.wait(lock, [this] { return !cmdQueue.empty(); });
   auto res = cmdQueue.front();
   cmdQueue.pop();
   return res;
@@ -48,20 +49,31 @@ int FrameBuffer::size() {
   return bufferQueue.size();
 }
 
+void FrameBuffer::notify() { notFull.notify_all(); }
+
 void FrameBuffer::push(oneFrame frame) {
-  {
-    std::lock_guard<std::mutex> lock(mtx);
-    bufferQueue.push(std::move(frame));
+  std::unique_lock<std::mutex> lock(mtx);
+  notFull.wait(lock,
+               [this] { return bufferQueue.size() <= HighMark || signal; });
+  if (signal) {
+    return;
   }
-  cv.notify_one();
+
+  bufferQueue.push(std::move(frame));
+  notEmpty.notify_all();
 }
 
 oneFrame FrameBuffer::get() {
   std::unique_lock<std::mutex> lock(mtx);
-  cv.wait(lock, [this] { return !bufferQueue.empty(); });
+  notEmpty.wait(lock, [this] { return !bufferQueue.empty(); });
 
   oneFrame frame = std::move(bufferQueue.front());
   bufferQueue.pop();
+
+  if (bufferQueue.size() <= LowMark) {
+    notFull.notify_all();
+  }
+
   return frame;
 }
 
@@ -176,8 +188,8 @@ void Player::testWallPaper() {
       // test time
       auto time = 10;
 
-      context->cv.wait_for(lock, std::chrono::seconds(time),
-                           [&] { return context->signal.load(); });
+      context->timeCondition.wait_for(lock, std::chrono::seconds(time),
+                                      [&] { return context->signal.load(); });
 
       // when the timer end, play must end now.
       if (paper.type == DYNAMIC) {
@@ -221,8 +233,8 @@ void Player::playList(wpList& list) {
         time = 60;
       }
 
-      context->cv.wait_for(lock, std::chrono::seconds(time),
-                           [&] { return context->signal.load(); });
+      context->timeCondition.wait_for(lock, std::chrono::seconds(time),
+                                      [&] { return context->signal.load(); });
 
       // when the timer end, play must end now.
       if (list[count].type == DYNAMIC) {
@@ -300,7 +312,7 @@ Player::Player(TaskList& tasklist,
 
 void Player::notify() {
   context->signal = true;
-  context->cv.notify_all();
+  context->timeCondition.notify_all();
 }
 
 std::string Player::play_info() {
