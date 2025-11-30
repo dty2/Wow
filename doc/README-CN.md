@@ -2,9 +2,7 @@
 
 ## 展示
 
-[动态](/show/dynamic.gif)
-
-[静态](/show/static.png)
+[静态](../example/static.png)
 
 ## 简介
 
@@ -16,7 +14,7 @@ Wow 是一个运行在 Wayland 环境下的壁纸播放器
 
 [发布版本](https://github.com/dty2/Wow/releases)
 
-如果需要自行构建，请参阅 [构建文档](/doc/构建与安装.md)。
+如果需要自行构建，请参阅 [构建文档](../doc/构建与安装.md)。
 
 ## 快速开始
 
@@ -49,7 +47,7 @@ Wow 是一个运行在 Wayland 环境下的壁纸播放器
 
 ### 配置文件
 
-[配置文件模板](/config.toml)
+[配置文件模板](../example/config/config-cn.toml)
 
 ```toml
 startlist = "" # <- 填入你最开始播放的壁纸列表
@@ -99,5 +97,5 @@ wow-cli -l [list]            # [L]ist     播放指定的列表
 
 ## 其他
 
-设计: 详见 [设计文档](/doc/设计.md)  
-测试: 详见 [测试文档](/doc/测试.md)
+设计: 详见 [设计文档](../doc/设计.md)  
+测试: 详见 [测试文档](../doc/测试.md)

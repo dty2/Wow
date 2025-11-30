@@ -4,7 +4,7 @@
 
 ## Showcase
 
-[Static](/show/static.png)
+![Static](/example/static.png)
 
 ## Introduction
 
@@ -48,7 +48,7 @@ By default, wallpaper lists are stored in `$HOME/.config/wow`.
 
 ### Configuration File
 
-[Configuration File Template](/config.toml)
+[Configuration File Template](/example/config/config.toml)
 
 ```toml
 startlist = "" # <- Fill in the wallpaper list you want to start playing first
