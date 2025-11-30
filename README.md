@@ -99,3 +99,10 @@ It allows you to check whether the wallpaper meets your expectations without for
 
 Design: see [Design Documentation](/doc/design.md)  
 Testing: see [Testing Documentation](/doc/test.md)
+
+## LICENSE
+
+This project uses a dual license:
+
+- Open source use: [GPLv3](/LICENSE)
+- Commercial use: [COMMERCIAL_LICENSE](/COMMERCIAL_LICENSE.md)
