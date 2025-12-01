@@ -1,0 +1,13 @@
+{
+  "btn_quick_start": "Quick Start",
+  "btn_doc": "Documentation",
+  "btn_support": "Whip / Buy Me a Milk Tea",
+  "quick_start_title": "Quick Start Guide",
+  "quick_start_content": "1. Download and install Wow from GitHub Releases.\n2. Run 'wow' in your Wayland terminal.\n3. Right click to set a static or dynamic wallpaper, or use the command:\n   wow set wallpaper.jpg / video.mp4\n4. More advanced usage: see the documentation.",
+  "support_title": "Support & Urge",
+  "support_desc": "How would you like to motivate the author?",
+  "support_whip": "Whip (1 RMB to urge update!)",
+  "support_coffee": "Buy a Milk Tea (12 RMB for update)",
+  "support_pay_whip": "Please scan to pay 1 RMB to urge update. (Demo only)",
+  "support_pay_coffee": "Please scan to pay 12 RMB for a milk tea. (Demo only)"
+}

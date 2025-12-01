@@ -1,0 +1,13 @@
+{
+  "btn_quick_start": "快速开始",
+  "btn_doc": "文档",
+  "btn_support": "鞭打 / 买奶茶",
+  "quick_start_title": "快速开始指南",
+  "quick_start_content": "1. 从 GitHub Releases 下载并安装 Wow。\n2. 在 Wayland 终端运行 'wow'。\n3. 右键即可设置静态/动态壁纸，或用命令：\n   wow set 壁纸.jpg / 视频.mp4\n4. 进阶用法请参考文档。",
+  "support_title": "支持作者 & 催更",
+  "support_desc": "请选择支持作者的方式：",
+  "support_whip": "鞭打（支付1元催更）",
+  "support_coffee": "买杯奶茶（12元催更）",
+  "support_pay_whip": "请扫码或支付1元催更（仅演示）",
+  "support_pay_coffee": "请扫码支付12元买奶茶（仅演示）"
+}

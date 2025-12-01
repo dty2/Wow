@@ -1,11 +1,5 @@
 # Wow!
 
-[中文](/doc/README-CN.md)
-
-## Showcase
-
-![Static](/example/static.png)
-
 ## Introduction
 
 Wow is a wallpaper player for the Wayland environment.
