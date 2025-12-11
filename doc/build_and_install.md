@@ -13,7 +13,11 @@ pacman -S pkgconf wayland wayland-protocols wlr-protocols mesa ffmpeg nlohmann-j
 ## Build Command
 
 ```bash
+# release
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+# debug
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+
 cmake --build build
 cmake --install build
 ```

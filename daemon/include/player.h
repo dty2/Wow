@@ -43,7 +43,7 @@ class TaskList {
  private:
   std::mutex mtx;
   std::queue<Task> cmdQueue;
-  std::condition_variable cv;
+  std::condition_variable taskCondition;
 
  public:
   bool empty();
@@ -54,27 +54,34 @@ class TaskList {
 using oneFrame = std::vector<uint8_t>;
 class FrameBuffer {
  private:
+  const int HighMark = 10, LowMark = 6;
   std::queue<oneFrame> bufferQueue;
   std::mutex mtx;
-  std::condition_variable cv;
+  std::condition_variable notEmpty, notFull;
+  std::atomic_bool& signal;
 
  public:
+  FrameBuffer(std::atomic_bool& signal) : signal(signal) {};
   int size();
   bool empty();
   oneFrame get();
   void push(oneFrame frame);
   void clear();
+  void notify();
 };
 
-struct PlayerContext {
+class PlayerContext {
+ public:
   FrameBuffer frameBuffer;
   std::atomic_bool signal;
   std::mutex mtx;
-  std::condition_variable cv;
+  std::condition_variable timeCondition;
   std::string testPaper;
   bool loop;
   int currentWallPaper;
   std::string currentList;
+
+  PlayerContext() : frameBuffer(signal) {};
 };
 
 class Player {
@@ -88,8 +95,13 @@ class Player {
 
   void next();
   void handleTask();
+
+  // play a wallpaper ONCE!
   void playWallPaper(WallPaper* wp);
+
+  // play a wallpaper list ONCE!
   void playList(wpList& list);
+
   void testWallPaper();
 
  public:

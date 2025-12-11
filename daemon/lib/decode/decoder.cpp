@@ -1,7 +1,5 @@
 #include "decode/decoder.h"
 
-#include <thread>
-
 #include "decode/ffmpeg.h"
 #include "log.hpp"
 #include "player.h"
@@ -182,13 +180,11 @@ bool Decoder::decode() {
 
     if (wallpaper->type == STATIC) break;
 
-    // To prevent the renderer from waiting indefinitely due to a lack of
-    // frames because the decoder stsignals working first when the frame
-    // queue is empty.
-    if (signal && !frameBuffer.empty()) break;
-
-    if (frameBuffer.size() > 20)
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (signal) {
+      // To prevent decoder quit first but renderer still wait in get
+      frameBuffer.notify();
+      break;
+    }
 
     av_packet_unref(*packet);
   }
