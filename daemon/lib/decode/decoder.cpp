@@ -180,11 +180,11 @@ bool Decoder::decode() {
 
     if (wallpaper->type == STATIC) break;
 
-    // To prevent the renderer from waiting indefinitely due to a lack of
-    // frames because the decoder stop working first when the frame
-    // queue is empty.
-    // So this line will make sure renderer quit first when signal is true
-    if (signal && !frameBuffer.empty()) break;
+    if (signal) {
+      // To prevent decoder quit first but renderer still wait in get
+      frameBuffer.notify();
+      break;
+    }
 
     av_packet_unref(*packet);
   }

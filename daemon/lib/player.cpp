@@ -49,7 +49,10 @@ int FrameBuffer::size() {
   return bufferQueue.size();
 }
 
-void FrameBuffer::notify() { notFull.notify_all(); }
+void FrameBuffer::notify() {
+  notFull.notify_all();
+  notEmpty.notify_all();
+}
 
 void FrameBuffer::push(oneFrame frame) {
   std::unique_lock<std::mutex> lock(mtx);
@@ -65,7 +68,7 @@ void FrameBuffer::push(oneFrame frame) {
 
 oneFrame FrameBuffer::get() {
   std::unique_lock<std::mutex> lock(mtx);
-  notEmpty.wait(lock, [this] { return !bufferQueue.empty(); });
+  notEmpty.wait(lock, [this] { return !bufferQueue.empty() || signal; });
 
   oneFrame frame = std::move(bufferQueue.front());
   bufferQueue.pop();
