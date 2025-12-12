@@ -75,6 +75,16 @@ int main(int argc, char* argv[]) {
     std::filesystem::create_directory(workdir);
   }
 
+  if (Help) {
+    printHelp();
+    return 0;
+  }
+
+  if (Version) {
+    std::cerr << VERSION << std::endl;
+    return 0;
+  }
+
   if (isRunning()) {
     std::cerr << "wow-daemon is runing now, can't run again." << std::endl;
     return 0;
@@ -97,16 +107,6 @@ int main(int argc, char* argv[]) {
   }
 
   if (!Logger::initLog(INFO, logtype, LogPath)) {
-    return 0;
-  }
-
-  if (Help) {
-    printHelp();
-    return 0;
-  }
-
-  if (Version) {
-    std::cerr << VERSION << std::endl;
     return 0;
   }
 
